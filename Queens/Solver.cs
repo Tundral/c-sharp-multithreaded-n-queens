@@ -73,7 +73,7 @@ namespace Queens
                     if (Queens.Count == Board.Size && !Board.TopQueenThreatens()) 
                     {
                         Board board = (Board)Board.Clone();
-                        AddIfUnique(retVal, board);
+                        retVal.Add(board);
                         while (!TopQueen.TryMove(1, 0))
                         {
                             if (!TryRemoveTopQueen()) return retVal;
