@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MoreLinq;
+using MoreLinq.Extensions;
+using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,7 +13,7 @@ namespace Queens
 {
     class Program
     {
-        public static int BoardSize { get; set; } = 11 ;
+        public static int BoardSize { get; set; } = 12 ;
         public static int HalfWaySize { get =>  BoardSize % 2 == 0 ? BoardSize / 2 : (BoardSize / 2) + 1; }
         static void Main(string[] args) {
             Algo();
@@ -99,29 +102,10 @@ namespace Queens
             //DrawerManager.SubmitBoards(noDuplicateStartingBoards);
             //DrawerManager.DrawBoards();
 
+            var results = startingBoards.AsParallel().Select(s => new Solver(s).FindAllUniqueSolutions()).SelectMany(x => x).ToList();
 
-            List<Board> results = new List<Board>();
 
 
-            SemaphoreSlim maxThread = new SemaphoreSlim(8);
-            List<Task> tasks = new List<Task>();
-
-            for (int i = 0; i < startingBoards.Count; i++)
-            {
-                Board b = startingBoards[i];
-                maxThread.Wait();
-                tasks.Add(Task.Factory.StartNew(() =>
-                {
-                    var solutions = new Solver(b).FindAllUniqueSolutions();
-                    results.AddRange(solutions);
-                }
-                    , TaskCreationOptions.LongRunning)
-                .ContinueWith((task) => maxThread.Release()));
-            }
-
-            Task.WaitAll(tasks.ToArray());
-
-            results = results.Where(r => r is not null).ToList();
             //DrawerManager.Print("Resulting boards: " + results.Count);
 
             //Countdown();
@@ -130,7 +114,7 @@ namespace Queens
 
             //Countdown();
 
-            List<Board> noDuplicates = Board.RemoveDuplicateBoards(results.Take(5000).ToList());
+            List<Board> noDuplicates = Board.RemoveDuplicateBoards(results);
 
             stopWatch.Stop();
 
