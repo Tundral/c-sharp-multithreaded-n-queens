@@ -212,17 +212,6 @@ namespace Queens
             rotations.Add((Board)clone.Clone());
             clone.Rotate90();
             rotations.Add((Board)clone.Clone());
-            clone.Rotate90();
-            clone.HorizontalMirror();
-
-            clone.VerticalMirror();
-            rotations.Add((Board)clone.Clone());
-            clone.Rotate90();
-
-            clone.Rotate90();
-            rotations.Add((Board)clone.Clone());
-            clone.Rotate90();
-            rotations.Add((Board)clone.Clone());
 
                 
 
