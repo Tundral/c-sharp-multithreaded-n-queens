@@ -175,14 +175,5 @@ namespace Queens
             if (top.Y <= MinHeight + 1) return false;
             else return Board.TryRemoveTopQueen();
         }
-
-        public static void AddIfUnique(List<Board> list, Board board)
-        {
-            foreach (Board b in list)
-            {
-                if (board.AnyRotationMirror(b)) return;
-            }
-            list.Add(board);
-        }
     }
 }
