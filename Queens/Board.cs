@@ -308,7 +308,11 @@ namespace Queens
         public static List<Board> RemoveDuplicateBoards(List<Board> boards)
         {
             //return boards.Select(b => new { Board = b, TrueRotation = string.Join("", b.TrueRotation()) }).GroupBy(b => b.TrueRotation).Select(g => g.First().Board).ToList();
-            return boards.AsParallel().Select(b => new { Board = b, TrueRotation = string.Join("", b.TrueRotation()) }).GroupBy(b => b.TrueRotation).Select(g => g.First().Board).ToList();
+            return boards.AsParallel()
+                .Select(b => new { Board = b, TrueRotation = string.Join("", b.TrueRotation()) })
+                .GroupBy(b => b.TrueRotation)
+                .Select(g => g.First().Board)
+                .ToList();
         }
 
     }
