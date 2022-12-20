@@ -49,5 +49,19 @@ namespace Queens
             return (Board)Board.Clone();
 
         }
+
+        public List<Board> Generate()
+        {
+            List<Board> retVal = new List<Board>();
+
+            Board solution = Next();
+            while (solution is not null)
+            {
+                retVal.Add(solution);
+                solution = Next();
+            }
+
+            return retVal;
+        }
     }
 }
