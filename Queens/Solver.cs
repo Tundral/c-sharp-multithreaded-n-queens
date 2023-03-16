@@ -11,12 +11,15 @@ namespace Queens
 {
     class Solver
     {
+        //Props and field variables
+
         public Board Board { get; }
         public int MinHeight { get; }
         public int? UpperLimit { get; } = null;
         public LinkedList<Queen> Queens { get => Board.Queens; }
         public Queen TopQueen { get => Queens.Last(); }
 
+        //Constructors
 
         public Solver(Board board)
         {
@@ -32,7 +35,7 @@ namespace Queens
             UpperLimit = upperLimit;
         }
 
-
+        //Methods
 
         public Board FindSolution()
         {
@@ -54,37 +57,6 @@ namespace Queens
             return Board;
         }
 
-        public List<Board> FindAllUniqueSolutions()
-        {
-            List<Board> retVal = new List<Board>();
-
-            if (Queens.Count < 1) Board.AddQueen(1, 1);
-            while (true)
-            {
-                if (Board.TopQueenThreatens())
-                {
-                    while (!TopQueen.TryMove(1, 0))
-                    {
-                        if (!TryRemoveTopQueen()) return retVal;
-                    }
-                }
-                else
-                {
-                    if (Queens.Count == Board.Size && !Board.TopQueenThreatens()) 
-                    {
-                        Board board = (Board)Board.Clone();
-                        retVal.Add(board);
-                        while (!TopQueen.TryMove(1, 0))
-                        {
-                            if (!TryRemoveTopQueen()) return retVal;
-                        }
-                    }
-                    else Board.AddQueen(1, TopQueen.Y + 1);
-                }
-            }
-            return retVal;
-        }
-
         public List<Board> FindAllSolutions()
         {
             List<Board> retVal = new List<Board>();
@@ -93,7 +65,6 @@ namespace Queens
 
             while (true)
             {
-                //Thread.Sleep(50);
                 if (Board.TopQueenThreatens())
                 {
                     while (!TopQueen.TryMove(1, 0))
@@ -112,62 +83,11 @@ namespace Queens
                             if (!TryRemoveTopQueen()) return retVal;
                         }
                     }
-                    else { 
-                        Board.AddQueen(1, TopQueen.Y + 1); 
-                    }
+                    else Board.AddQueen(1, TopQueen.Y + 1); 
                 }
             }
             return retVal;
         }
-
-        public List<Board> FindAllPartialSolutions()
-        {
-            List<Board> retVal = new List<Board>();
-
-            if (Queens.Count < 1) Board.AddQueen(1, 1);
-
-            while (true)
-            {
-                if (TopQueen.X == Board.Size && TopQueen.Y == UpperLimit)
-                {
-                    if (Board.TopQueenThreatens()) return retVal;
-                    else
-                    {
-                        retVal.Add((Board)Board.Clone());
-                        return retVal;
-                    }
-                }
-                Thread.Sleep(50);
-                if (Board.TopQueenThreatens())
-                {
-                    while (!TopQueen.TryMove(1, 0))
-                    {
-                        if (!TryRemoveTopQueen()) return retVal;
-                    }
-                }
-                else
-                {
-                    if (TopQueen.Y == UpperLimit && !Board.TopQueenThreatens())
-                    {
-                        BoardDrawerManager.DrawerManager.Print("Yaay, a solution!");
-                        Board board = (Board)Board.Clone();
-                        retVal.Add(board);
-                        while (!TopQueen.TryMove(1, 0))
-                        {
-                            if (!TryRemoveTopQueen()) return retVal;
-                        }
-                    }
-                    else
-                    {
- 
-                        Board.AddQueen(1, TopQueen.Y + 1);
-                    }
-                }
-            }
-            return retVal;
-        }
-
-
 
         public bool TryRemoveTopQueen()
         {

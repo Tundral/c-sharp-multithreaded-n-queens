@@ -7,13 +7,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using static Queens.BoardDrawerManager;
 
 namespace Queens
 {
     class Program
     {
-        public static int BoardSize { get; set; } =  10 ;
+        public static int BoardSize { get; set; } = 9 ;
         static void Main(string[] args) {
             Algo();
         }
@@ -21,44 +20,97 @@ namespace Queens
         static void Algo()
         {
 
+            ConsoleHelpers.Maximize();
+            Console.CursorVisible = false;
+
+
+            Console.Write(@"======================================== ULTIMATE N-QUEENS SOLVER ========================================
+Welcome to the ultimate n-queens solving program
+The program will find all absolutely unique solutions to a given board size! (no rotations or mirrored versions allowed)
+
+Be cautioned, board sizes over 12 will take some time to solve (>30s).
+
+Please enter the board size you'd like to find solutions for: "
+
+                );
+
+
+            //==================== Asking user for board size ====================
+
+            var currPos = Console.GetCursorPosition();
+            int boardSize = ReadLineInt();
+            while(boardSize < 4) { 
+            
+                Console.WriteLine("\nPlease enter a number that is four or greater!");
+                
+                Console.SetCursorPosition(currPos.Left, currPos.Top);
+                Console.Write("                                ");
+                Console.SetCursorPosition(currPos.Left, currPos.Top);
+                
+                boardSize = ReadLineInt();
+            }
+
+            List<Board> results;
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            List<Board> results = new Generator(BoardSize, 4).Generate();
+            Console.SetCursorPosition(currPos.Left, currPos.Top);
+            Console.Write("                                ");
 
-            results = results.AsParallel().Select(s => new Solver(s).FindAllUniqueSolutions()).SelectMany(x => x).ToList();
+            //==================== Actual algorithm ====================
+            //Parallel LinQ enables the use of multiple threads
 
-            results = Board.RemoveDuplicateBoards(results);
+            using (var spinner = new Spinner(currPos.Left, currPos.Top))
+             {
+             
+                spinner.Start();
 
-            stopWatch.Stop();
 
-            
+                results = new Generator(boardSize, 4).Generate();
 
-            DrawerManager.Print($"{results.Count} solutions");
-            
+                results = results.AsParallel().Select(s => new Solver(s).FindAllSolutions()).SelectMany(x => x).ToList();
+
+                results = Board.RemoveDuplicateBoards(results);
+
+                stopWatch.Stop();
+             }
+
+            //==================== Drawing the solutions ====================
+            //Or count of solutions if there's too may of them to draw in the console
 
             List<List<Queen>> theSolutions = new List<List<Queen>>();
             results.ForEach(b => theSolutions.Add(b.Queens.ToList()));
 
             theSolutions.ForEach(s => s.Sort( (thisQ , thatQ)  => thisQ.Y - thatQ.Y));
 
-            if(theSolutions.Count < 5000)
+            if(results.Count < 50)
             {
-                theSolutions.ForEach(s =>
+                foreach(Board res in results)
                 {
-                    string str = string.Join(',', s.Select(s => s.X));
-                    str = string.Format("[{0}]", str);
-                    DrawerManager.Print(str);
-                });
+                    res.Print();
+                    Thread.Sleep(1000);
+                }
             }
 
-            DrawerManager.Print($"{results.Count} solutions");
-            DrawerManager.Print($" Time elapsed: {stopWatch.Elapsed}");
-
             Console.ReadLine();
             Console.ReadLine();
 
 
+        }
+
+        public static int ReadLineInt()
+        {
+            var currPos = Console.GetCursorPosition();
+            string input;
+            int retVal;
+            do
+            {
+               Console.SetCursorPosition(currPos.Left, currPos.Top);
+               Console.Write("                                ");
+               Console.SetCursorPosition(currPos.Left, currPos.Top);
+               input = Console.ReadLine();
+            } while (!int.TryParse(input, out retVal));
+            return retVal;
         }
     }
 }

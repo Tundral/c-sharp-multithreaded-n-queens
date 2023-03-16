@@ -18,8 +18,6 @@ namespace Queens
         public int Size { get;}
         public LinkedList<Queen> Queens{ get; }
 
-        public BoardDrawer Drawer { get; set; }
-
 
         //Constructors
         public Board(int size)
@@ -171,18 +169,6 @@ namespace Queens
             if (this.Equals(thatClone)) return true;
             thatClone.Rotate90();
             if (this.Equals(thatClone)) return true;
-            thatClone.Rotate90();
-            thatClone.HorizontalMirror();
-
-            thatClone.VerticalMirror();
-            if (this.Equals(thatClone)) return true;
-            thatClone.Rotate90();
-            if (this.Equals(thatClone)) return true;
-            thatClone.Rotate90();
-            if (this.Equals(thatClone)) return true;
-            thatClone.Rotate90();
-            if (this.Equals(thatClone)) return true;
-            
 
             return false;
 
@@ -239,8 +225,6 @@ namespace Queens
 
             Queen nq = new Queen(x, y, this);
             Queens.AddLast(nq);
-            if (Drawer is not null) nq.queenMovedEvent += Drawer.OnQueeenMoved;
-
             
         }
 
@@ -271,7 +255,6 @@ namespace Queens
         public bool TryRemoveTopQueen()
         {
             if (Queens.First.Next is null) return false;
-            if (queenRemovedEvent is not null) queenRemovedEvent(this, new QueenRemovedEventArgs(Queens.Last()));
             Queens.RemoveLast();
             return true;
         }
@@ -291,23 +274,10 @@ namespace Queens
             return remainder.Count() < 1;
         }
 
-        //Delegates and Events
-
-        public class QueenRemovedEventArgs : EventArgs
-        {
-            public Queen Queen { get; }
-
-            public QueenRemovedEventArgs(Queen queen)
-            {
-                Queen = queen;
-            }
-        }
-
-        public event EventHandler<QueenRemovedEventArgs> queenRemovedEvent;
+        //Static elements
 
         public static List<Board> RemoveDuplicateBoards(List<Board> boards)
         {
-            //return boards.Select(b => new { Board = b, TrueRotation = string.Join("", b.TrueRotation()) }).GroupBy(b => b.TrueRotation).Select(g => g.First().Board).ToList();
             return boards.AsParallel()
                 .Select(b => new { Board = b, TrueRotation = string.Join("", b.TrueRotation()) })
                 .GroupBy(b => b.TrueRotation)
@@ -315,5 +285,6 @@ namespace Queens
                 .ToList();
         }
 
+        public static List<Board> PrintBoards
     }
 }
